@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Fly Brain Chat 🪰</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        background: #111;
+        color: white;
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 700px;
+        margin: auto;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 5px;
+    }
+
+    .status {
+        text-align: center;
+        color: #aaa;
+        font-size: 13px;
+        margin-bottom: 15px;
+    }
+
+    #chat {
+        height: 65vh;
+        overflow-y: auto;
+        background: #1b1b1b;
+        border: 1px solid #444;
+        border-radius: 15px;
+        padding: 15px;
+    }
+
+    .message {
+        max-width: 85%;
+        padding: 11px 14px;
+        margin: 10px 0;
+        border-radius: 12px;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+
+    .you {
+        margin-left: auto;
+        background: #285c38;
+    }
+
+    .fly {
+        background: #333;
+    }
+
+    .name {
+        font-weight: bold;
+        margin-bottom: 3px;
+    }
+
+    .input-area {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    #messageInput {
+        flex: 1;
+        min-width: 0;
+        padding: 14px;
+        border-radius: 10px;
+        border: 1px solid #555;
+        background: #222;
+        color: white;
+        font-size: 16px;
+        outline: none;
+    }
+
+    #messageInput:focus {
+        border-color: #888;
+    }
+
+    button {
+        padding: 14px 18px;
+        border: none;
+        border-radius: 10px;
+        background: white;
+        color: black;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button:active {
+        transform: scale(0.97);
+    }
+
+    .info {
+        margin-top: 12px;
+        color: #888;
+        font-size: 12px;
+        text-align: center;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🪰 Fly Brain Chat</h1>
+
+    <div class="status" id="status">
+        Simulated sensory interface
+    </div>
+
+    <div id="chat"></div>
+
+    <div class="input-area">
+
+        <input
+            id="messageInput"
+            type="text"
+            placeholder="Talk to the fly..."
+            autocomplete="off"
+        >
+
+        <button onclick="sendMessage()">
+            Send
+        </button>
+
+    </div>
+
+    <div class="info">
+        This is an interface simulation. The actual 166,700-neuron
+        fly-brain model requires an external server.
+    </div>
+
+</div>
+
+
+<script>
+
+const chat = document.getElementById("chat");
+const input = document.getElementById("messageInput");
+const statusText = document.getElementById("status");
+
+
+function addMessage(type, name, text) {
+
+    const message = document.createElement("div");
+
+    message.className = "message " + type;
+
+    const nameElement = document.createElement("div");
+
+    nameElement.className = "name";
+
+    nameElement.textContent = name;
+
+    const textElement = document.createElement("div");
+
+    textElement.textContent = text;
+
+    message.appendChild(nameElement);
+    message.appendChild(textElement);
+
+    chat.appendChild(message);
+
+    chat.scrollTop = chat.scrollHeight;
+}
+
+
+function understandMessage(text) {
+
+    const t = text.toLowerCase();
+
+    /*
+        These are simple sensory signals.
+
+        They are NOT the actual neural simulation yet.
+    */
+
+    const signals = {
+
+        food:
+            t.includes("food") ||
+            t.includes("eat") ||
+            t.includes("fruit"),
+
+        danger:
+            t.includes("danger") ||
+            t.includes("enemy") ||
+            t.includes("scary"),
+
+        left:
+            t.includes("left"),
+
+        right:
+            t.includes("right"),
+
+        light:
+            t.includes("light") ||
+            t.includes("bright"),
+
+        dark:
+            t.includes("dark"),
+
+        greeting:
+            t.includes("hello") ||
+            t.includes("hi") ||
+            t.includes("hey")
+    };
+
+
+    let response = "";
+    let state = "neutral";
+
+
+    if (signals.greeting) {
+
+        response =
+            "Hello! I detect that you are interacting with me.";
+
+        state = "interaction";
+
+    }
+
+    else if (signals.danger) {
+
+        response =
+            "I detect a possible threat. I would try to move away.";
+
+        state = "avoid";
+
+    }
+
+    else if (signals.food) {
+
+        response =
+            "I detect a food-related cue. I would investigate it.";
+
+        state = "food";
+
+    }
+
+    else if (signals.left && !signals.right) {
+
+        response =
+            "I detect a cue on my left. I would turn left.";
+
+        state = "turn_left";
+
+    }
+
+    else if (signals.right && !signals.left) {
+
+        response =
+            "I detect a cue on my right. I would turn right.";
+
+        state = "turn_right";
+
+    }
+
+    else if (signals.light) {
+
+        response =
+            "I detect a bright/light cue. I would investigate it.";
+
+        state = "light";
+
+    }
+
+    else if (signals.dark) {
+
+        response =
+            "I detect darkness. I would look for a brighter area.";
+
+        state = "seek_light";
+
+    }
+
+    else {
+
+        response =
+            "I don't detect a strong sensory cue from that.";
+
+        state = "neutral";
+    }
+
+
+    return {
+        response: response,
+        state: state,
+        signals: signals
+    };
+}
+
+
+function sendMessage() {
+
+    const text = input.value.trim();
+
+    if (text === "") {
+        return;
+    }
+
+
+    addMessage(
+        "you",
+        "You",
+        text
+    );
+
+
+    input.value = "";
+
+
+    const result =
+        understandMessage(text);
+
+
+    setTimeout(function() {
+
+        addMessage(
+            "fly",
+            "🪰 Fly",
+            result.response
+        );
+
+        statusText.textContent =
+            "Current simulated state: " +
+            result.state;
+
+    }, 300);
+}
+
+
+input.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Enter") {
+
+            sendMessage();
+
+        }
+
+    }
+);
+
+
+/* Initial message */
+
+addMessage(
+    "fly",
+    "🪰 Fly",
+    "Hello! Talk to me. Try saying \"I see food\", \"there is danger\", or \"light is on my left\"."
+);
+
+</script>
+
+</body>
+</html>
